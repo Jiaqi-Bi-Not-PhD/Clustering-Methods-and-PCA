@@ -1,0 +1,4 @@
+\babel@toc {english}{}
+\contentsline {section}{\numberline {1}Why do we use Clustering?}{2}% 
+\contentsline {subsection}{\numberline {1.1}$K$ means clustering}{2}% 
+\contentsline {subsection}{\numberline {1.2}Hierarchical clustering}{3}% 

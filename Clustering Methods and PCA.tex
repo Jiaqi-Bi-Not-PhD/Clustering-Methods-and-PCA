@@ -1,0 +1,135 @@
+\documentclass[a4paper,11pt]{article}
+
+\setlength{\oddsidemargin}{0 in}
+\setlength{\evensidemargin}{0 in}
+\setlength{\topmargin}{-0.6 in}
+\setlength{\textwidth}{6.5 in}
+\setlength{\textheight}{8.5 in}
+\setlength{\headsep}{0.75 in}
+\setlength{\parindent}{0 in}
+\setlength{\parskip}{0.1 in}
+
+\usepackage[english]{babel}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath}
+\usepackage{graphicx}
+\usepackage{amssymb}
+\usepackage{amsthm}
+\usepackage{tikz-cd}
+\usepackage{mathrsfs}
+\usepackage[colorinlistoftodos]{todonotes}
+\usepackage{enumitem}
+\usepackage{yfonts}
+\usepackage{ dsfont }
+\usepackage{soul}
+\usepackage{tabularx}
+\usepackage{setspace}
+
+\title{\textbf{Clustering Methods and PCA}}
+
+\author{Jiaqi Bi, University of Toronto}
+
+\newtheorem{thm}{Theorem}[section]
+\newtheorem{lem}[thm]{Lemma}
+
+\newtheorem{defn}[thm]{Definition}
+\newtheorem{eg}[thm]{Example}
+\newtheorem{ex}[thm]{Exercise}
+\newtheorem{conj}[thm]{Conjecture}
+\newtheorem{cor}[thm]{Corollary}
+\newtheorem{claim}[thm]{Claim}
+\newtheorem{rmk}[thm]{Remark}
+
+\newcommand{\ie}{\emph{i.e.} }
+\newcommand{\cf}{\emph{cf.} }
+\newcommand{\into}{\hookrightarrow}
+\newcommand{\dirac}{\slashed{\partial}}
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\C}{\mathbb{C}}
+\newcommand{\Z}{\mathbb{Z}}
+\newcommand{\N}{\mathbb{N}}
+\newcommand{\Q}{\mathbb{Q}}
+\newcommand{\LieT}{\mathfrak{t}}
+\newcommand{\T}{\mathbb{T}}
+\newcommand{\A}{\mathds{A}}
+
+\DeclareMathOperator{\lcm}{lcm}
+\DeclareMathOperator{\ord}{ord}
+
+\begin{document}
+\setstretch{1.1}
+\begin{titlepage}
+\end{titlepage}
+
+\maketitle
+
+\tableofcontents
+
+\newpage
+
+\section{Why do we use Clustering?}
+Clustering is used for finding subgroups or clusters in a data set. It is a technique for data mining. 
+\begin{eg}
+\normalfont
+We have a set of $n$ observations, each with $p$ features. The $n$ observations could correspond to tissue samples for patients with breast cancer; these could be clinical measurements. We may have a reason to believe that there is some heterogeneity among the $n$ tissue samples; perhaps there are a few different unknown subtypes of breast cancer. Clustering could be used to find these subgroups. 
+\end{eg}
+
+There are two best known clustering methods: 
+\begin{itemize}
+\item $K$ means clustering: We seek to partition the observations into a pre-specified number of clusters.
+\item Hierarchical clustering: We do not know in advance how many clusters we want
+\end{itemize}
+\begin{defn}
+\normalfont
+\textbf{Dendrogram}
+
+A tree-like visual representation of the observations that allows us to view at once the clusterings obtained for each possible number of clusters from $1$ to $n$.
+\end{defn}
+
+\subsection{$K$ means clustering}
+
+$C_1,...,C_K$ denote sets containing the indices i.e., $1, ..., K$ of the observations in each cluster. These sets have the following properties:
+\begin{itemize}
+\item $C_1\cup C_2\cup...\cup C_K=\{1,...,n\}$ Each observation belongs to at least one of the $K$ clusters. 
+\item $C_K\cap C_{K'}=\emptyset$ for all $k\neq k'$ The clusters are non-overlapping: no observation belongs to more than one cluster. 
+\end{itemize}
+If the $i$th observation is in the $k$th cluster, call it $i\in C_k$. Note that $K$-means clustering is a good clustering as within-cluster variation is as small as possible. 
+\begin{defn}
+\normalfont
+\textbf{Within-cluster variation}
+
+For cluster $C_k$ is a measure $W(C_k)$ of the amount by which the observations within a cluster differ from each other. We need to solve: 
+$$\underset{C_1,...,C_K}{\text{minimize}} \left\{ \sum_{k=1}^KW(C_k)\right\}$$
+
+Formula:
+$$W(C_k)=\frac{1}{|C_k|}\sum_{i,i'\in C_k}\sum_{j=1}^p(x_{ij}-x_{i'j})^2$$
+where $|C_k|$ is the number of observations in the $k$th cluster. Combining these two formulas will get a optimization problem that defines $K$ means clustering: 
+$$\underset{C_1,...,C_K}{\text{minimize}}\left\{\sum_{k=1}^K\frac{1}{|C_k|}\sum_{i,i'\in C_k}\sum_{j=1}^p(x_{ij}-x_{i'j})^2\right\}$$
+\end{defn}
+The algorithm of $K$ Means Clustering: 
+\begin{enumerate}
+\item Randomly assign a number, from $1$ to $K$, to each of the observations. These serve as initial cluster assignments for the observations. 
+\item Iterate until the cluster assignments stop changing:
+\begin{itemize}
+\item For each of the $K$ clusters, compute the cluster centroid. The $k$th cluster centroid is the vector of the $p$ feature means for the observations in the $k$th cluster.
+\item Assign each observation to the cluster whose centroid is closest (where closest is defined using Euclidean distance).
+\end{itemize}
+\end{enumerate}
+Following formulae explains why the algorithm is to decrease the value of the objective (optimization problem) at each step: 
+$$\frac{1}{|C_k|}\sum_{i,i'\in C_k}\sum_{j=1}^p(x_{ij}-x_{i'j})^2=2\sum_{i\in C_k}\sum_{j=1}^p(x_{ij}-\bar{x}_{kj})^2$$
+where $\bar{x}_{kj}=\frac{1}{|C_k|}\sum_{i\in C_k}x_{ij}$ is the mean for feature $j$ in cluster $C_k$. 
+
+To perform $K$ means clustering, we must decide how many clusters we expect in the data. The problem of selecting $K$ is far from simple. 
+
+\subsection{Hierarchical clustering}
+There is a con of $K$ means clustering such that it needs us to pre specify the number of clusters $K$. The method of Hierarchical clustering does not require that we need a particular choice of $K$. 
+
+The most common type of hierarchical clustering: 
+\begin{itemize}
+\item Bottom-up
+\item Agglomerative
+\end{itemize}
+
+
+
+\end{document}
